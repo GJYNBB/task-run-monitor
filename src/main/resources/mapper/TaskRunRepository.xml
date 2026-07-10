@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qianyu.taskrun.repository.TaskRunRepository">
+
+    <resultMap id="taskRunResultMap" type="com.qianyu.taskrun.entity.TaskRun">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="shopId" column="shop_id"/>
+        <result property="platform" column="platform"/>
+        <result property="status" column="status" javaType="com.qianyu.taskrun.enums.TaskStatus"/>
+        <result property="startedAt" column="started_at"/>
+        <result property="finishedAt" column="finished_at"/>
+        <result property="rowCount" column="row_count"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <resultMap id="summaryResultMap" type="com.qianyu.taskrun.repository.TaskRunSummaryRow">
+        <result property="runningCount" column="running_count"/>
+        <result property="successCount" column="success_count"/>
+        <result property="failedCount" column="failed_count"/>
+        <result property="successRowCount" column="success_row_count"/>
+        <result property="latestSuccessFinishedAt" column="latest_success_finished_at"/>
+    </resultMap>
+
+    <sql id="columns">
+        id, task_id, shop_id, platform, status, started_at, finished_at,
+        row_count, error_message, updated_at
+    </sql>
+
+    <select id="selectByTaskId" resultMap="taskRunResultMap">
+        SELECT <include refid="columns"/>
+        FROM task_run
+        WHERE task_id = #{taskId}
+    </select>
+
+    <update id="updateBusinessFieldsByTaskId">
+        UPDATE task_run
+        SET shop_id = #{shopId},
+            platform = #{platform},
+            status = #{status},
+            started_at = #{startedAt},
+            finished_at = #{finishedAt},
+            row_count = #{rowCount},
+            error_message = #{errorMessage},
+            updated_at = #{updatedAt}
+        WHERE task_id = #{taskId}
+    </update>
+
+    <select id="selectPageByCondition" resultMap="taskRunResultMap">
+        SELECT <include refid="columns"/>
+        FROM task_run
+        <where>
+            <if test="shopId != null">
+                shop_id = #{shopId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY updated_at DESC, id DESC
+    </select>
+
+    <select id="selectSummaryByShopId" resultMap="summaryResultMap">
+        SELECT
+            COALESCE(SUM(CASE WHEN status = 'RUNNING' THEN 1 ELSE 0 END), 0) AS running_count,
+            COALESCE(SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END), 0) AS success_count,
+            COALESCE(SUM(CASE WHEN status = 'FAILED' THEN 1 ELSE 0 END), 0) AS failed_count,
+            COALESCE(SUM(CASE WHEN status = 'SUCCESS' THEN row_count ELSE 0 END), 0) AS success_row_count,
+            MAX(CASE WHEN status = 'SUCCESS' THEN finished_at ELSE NULL END) AS latest_success_finished_at
+        FROM task_run
+        WHERE shop_id = #{shopId}
+    </select>
+</mapper>

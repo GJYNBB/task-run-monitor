@@ -1,0 +1,113 @@
+### 第一次上报：RUNNING
+POST http://localhost:8080/api/task-runs
+Content-Type: application/json
+
+{
+  "taskId": "TASK-001",
+  "shopId": "SHOP-001",
+  "platform": "TAOBAO",
+  "status": "RUNNING",
+  "startedAt": "2026-07-10T09:00:00",
+  "finishedAt": null,
+  "rowCount": 0,
+  "errorMessage": null
+}
+
+### 相同 taskId 更新为 SUCCESS
+POST http://localhost:8080/api/task-runs
+Content-Type: application/json
+
+{
+  "taskId": "TASK-001",
+  "shopId": "SHOP-001",
+  "platform": "TAOBAO",
+  "status": "SUCCESS",
+  "startedAt": "2026-07-10T09:00:00",
+  "finishedAt": "2026-07-10T09:10:00",
+  "rowCount": 1200,
+  "errorMessage": null
+}
+
+### 默认分页查询
+GET http://localhost:8080/api/task-runs?page=1&size=10
+
+### shopId 筛选
+GET http://localhost:8080/api/task-runs?page=1&size=10&shopId=SHOP-001
+
+### status 筛选
+GET http://localhost:8080/api/task-runs?page=1&size=10&status=SUCCESS
+
+### 组合筛选
+GET http://localhost:8080/api/task-runs?page=1&size=10&shopId=SHOP-001&status=SUCCESS
+
+### 店铺汇总
+GET http://localhost:8080/api/task-runs/summary?shopId=SHOP-001
+
+### 非法 status
+GET http://localhost:8080/api/task-runs?page=1&size=10&status=UNKNOWN
+
+### 非法 taskId
+POST http://localhost:8080/api/task-runs
+Content-Type: application/json
+
+{
+  "taskId": " ",
+  "shopId": "SHOP-001",
+  "platform": "TAOBAO",
+  "status": "RUNNING",
+  "startedAt": "2026-07-10T09:00:00",
+  "finishedAt": null,
+  "rowCount": 0,
+  "errorMessage": null
+}
+
+### 非法 rowCount
+POST http://localhost:8080/api/task-runs
+Content-Type: application/json
+
+{
+  "taskId": "TASK-BAD-ROW",
+  "shopId": "SHOP-001",
+  "platform": "TAOBAO",
+  "status": "RUNNING",
+  "startedAt": "2026-07-10T09:00:00",
+  "finishedAt": null,
+  "rowCount": -1,
+  "errorMessage": null
+}
+
+### SUCCESS 缺少 finishedAt
+POST http://localhost:8080/api/task-runs
+Content-Type: application/json
+
+{
+  "taskId": "TASK-BAD-SUCCESS",
+  "shopId": "SHOP-001",
+  "platform": "TAOBAO",
+  "status": "SUCCESS",
+  "startedAt": "2026-07-10T09:00:00",
+  "finishedAt": null,
+  "rowCount": 100,
+  "errorMessage": null
+}
+
+### FAILED 缺少 errorMessage
+POST http://localhost:8080/api/task-runs
+Content-Type: application/json
+
+{
+  "taskId": "TASK-BAD-FAILED",
+  "shopId": "SHOP-001",
+  "platform": "DOUYIN",
+  "status": "FAILED",
+  "startedAt": "2026-07-10T09:00:00",
+  "finishedAt": "2026-07-10T09:10:00",
+  "rowCount": 0,
+  "errorMessage": null
+}
+
+### 非法 page
+GET http://localhost:8080/api/task-runs?page=0&size=10
+
+### 非法 size
+GET http://localhost:8080/api/task-runs?page=1&size=101
