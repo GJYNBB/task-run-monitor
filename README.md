@@ -20,17 +20,67 @@
 3. **店铺汇总** `GET /api/task-runs/summary`  
    统计 RUNNING / SUCCESS / FAILED 数量、成功采集行数、最近成功完成时间。
 
-## 快速开始
+## 重要说明（必读）
 
-### 1. 准备数据库
+### 1. `.env` 不会被 Spring Boot 自动加载
 
-先创建数据库 `task_run_database`，再执行建表脚本：
+本项目提供了 `.env.example` 作为配置模板，也建议本地复制为 `.env` 保存真实凭据。
 
-```sql
--- src/main/resources/db/mysql/schema.sql
+但 **Spring Boot 不会自动读取 `.env` 文件**。
+
+必须由使用者手动把变量放到进程环境中，例如：
+
+- **IDEA**：Run/Debug Configuration → Environment variables
+- **Shell / PowerShell**：启动前 `export` / `Set-Item Env:...`
+- **进程管理器 / 部署平台**：在运行环境中注入环境变量
+
+应用实际读取的是：
+
+- `DB_URL`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+
+如果只创建了 `.env` 文件、却没有导出这些变量，服务启动后无法连接数据库。
+
+### 2. MySQL 建表脚本不会自动执行
+
+`application.yml` 中配置了：
+
+```yaml
+spring:
+  sql:
+    init:
+      mode: never
 ```
 
-### 2. 配置环境变量
+因此：
+
+- 项目中的 MySQL 建表脚本 **不会在启动时自动执行**
+- 脚本位置：[`src/main/resources/db/mysql/schema.sql`](src/main/resources/db/mysql/schema.sql)
+- 脚本结构正确，包含 `task_run` 表、主键和 `task_id` 唯一约束
+- **使用者必须自己找到并手动执行该脚本**
+
+如果未先建表，接口调用会出现类似错误：
+
+```text
+Table 'task_run_database.task_run' doesn't exist
+```
+
+## 快速开始
+
+### 1. 创建数据库并手动建表
+
+1. 在 MySQL 中创建数据库：`task_run_database`
+2. **手动执行** 建表脚本：
+
+```text
+src/main/resources/db/mysql/schema.sql
+```
+
+可用 IDEA Database、MySQL 客户端或命令行执行。  
+注意：因为 `spring.sql.init.mode=never`，这一步 **不会被应用自动完成**。
+
+### 2. 配置环境变量（不是只写 .env 文件）
 
 ```bash
 cp .env.example .env
@@ -44,12 +94,9 @@ DB_USERNAME=your_username
 DB_PASSWORD=your_password
 ```
 
-> `.env` 已被 git 忽略，不会提交到 GitHub。  
-> Spring Boot 不会自动读取 `.env`，启动前需要导出为系统环境变量，或在 IDEA Run Configuration 中配置。
+`.env` 已被 git 忽略，不会提交到 GitHub。
 
-### 3. 启动服务
-
-PowerShell：
+然后 **必须导出为环境变量**，例如 PowerShell：
 
 ```powershell
 Get-Content .env | ForEach-Object {
@@ -57,6 +104,21 @@ Get-Content .env | ForEach-Object {
   $k,$v = $_.Split('=',2)
   Set-Item -Path "Env:$k" -Value $v
 }
+```
+
+或在 IDEA Run Configuration 中直接配置：
+
+```text
+DB_URL=...
+DB_USERNAME=...
+DB_PASSWORD=...
+```
+
+### 3. 启动服务
+
+PowerShell：
+
+```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -168,5 +230,6 @@ src/main/resources/
 
 - `taskId` 有数据库唯一约束，相同任务只会保留一条记录。
 - `updatedAt` 由服务端生成，不接受客户端传入。
-- 默认不会自动建表，首次部署需手动执行 `schema.sql`。
+- **Spring Boot 不会自动加载 `.env`**，必须在 IDEA、Shell 或部署环境中手动导出 `DB_URL` / `DB_USERNAME` / `DB_PASSWORD`。
+- **建表脚本不会自动执行**。当前配置为 `spring.sql.init.mode=never`，请手动执行 [`src/main/resources/db/mysql/schema.sql`](src/main/resources/db/mysql/schema.sql)。
 - 不要把真实数据库密码提交到仓库，只保留 `.env.example`。
