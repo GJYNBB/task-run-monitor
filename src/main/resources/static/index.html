@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>采集任务监控台</title>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Task Run Monitor</p>
+        <h1>采集任务监控台</h1>
+        <p class="subtitle">上报任务运行状态，查询分页列表，并查看店铺汇总。</p>
+      </div>
+      <div class="hero-badge">Spring Boot Demo</div>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <div class="card-head">
+          <h2>任务上报</h2>
+          <p>相同 taskId 会更新原记录，不会重复新增。</p>
+        </div>
+        <form id="report-form" class="form">
+          <div class="form-grid">
+            <label>
+              <span>taskId</span>
+              <input id="taskId" name="taskId" required placeholder="TASK-001" value="TASK-DEMO-001" />
+            </label>
+            <label>
+              <span>shopId</span>
+              <input id="shopId" name="shopId" required placeholder="SHOP-001" value="SHOP-001" />
+            </label>
+            <label>
+              <span>platform</span>
+              <input id="platform" name="platform" required placeholder="TAOBAO" value="TAOBAO" />
+            </label>
+            <label>
+              <span>status</span>
+              <select id="status" name="status">
+                <option value="RUNNING">RUNNING</option>
+                <option value="SUCCESS" selected>SUCCESS</option>
+                <option value="FAILED">FAILED</option>
+              </select>
+            </label>
+            <label>
+              <span>startedAt</span>
+              <input id="startedAt" name="startedAt" type="datetime-local" required />
+            </label>
+            <label>
+              <span>finishedAt</span>
+              <input id="finishedAt" name="finishedAt" type="datetime-local" />
+            </label>
+            <label>
+              <span>rowCount</span>
+              <input id="rowCount" name="rowCount" type="number" min="0" required value="1200" />
+            </label>
+            <label class="full">
+              <span>errorMessage</span>
+              <input id="errorMessage" name="errorMessage" placeholder="失败时填写错误信息" />
+            </label>
+          </div>
+          <div class="actions">
+            <button type="button" class="ghost" id="fill-running">填充 RUNNING 示例</button>
+            <button type="button" class="ghost" id="fill-success">填充 SUCCESS 示例</button>
+            <button type="submit" class="primary">提交上报</button>
+          </div>
+        </form>
+        <pre id="report-result" class="result" hidden></pre>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>店铺汇总</h2>
+          <p>统计三种状态数量、成功行数和最近成功时间。</p>
+        </div>
+        <form id="summary-form" class="inline-form">
+          <label>
+            <span>shopId</span>
+            <input id="summaryShopId" required value="SHOP-001" />
+          </label>
+          <button type="submit" class="primary">查询汇总</button>
+        </form>
+        <div id="summary-cards" class="summary-grid">
+          <div class="metric"><span>RUNNING</span><strong id="runningCount">-</strong></div>
+          <div class="metric"><span>SUCCESS</span><strong id="successCount">-</strong></div>
+          <div class="metric"><span>FAILED</span><strong id="failedCount">-</strong></div>
+          <div class="metric"><span>成功行数</span><strong id="successRowCount">-</strong></div>
+          <div class="metric wide"><span>最近成功完成时间</span><strong id="latestSuccessFinishedAt">-</strong></div>
+        </div>
+        <pre id="summary-result" class="result" hidden></pre>
+      </section>
+
+      <section class="card full-width">
+        <div class="card-head row">
+          <div>
+            <h2>任务列表</h2>
+            <p>支持 shopId、status 筛选，按 updatedAt 倒序分页。</p>
+          </div>
+          <div class="pager">
+            <button type="button" class="ghost" id="prev-page">上一页</button>
+            <span id="page-info">第 1 页</span>
+            <button type="button" class="ghost" id="next-page">下一页</button>
+          </div>
+        </div>
+        <form id="query-form" class="inline-form wrap">
+          <label>
+            <span>shopId</span>
+            <input id="queryShopId" placeholder="可选" />
+          </label>
+          <label>
+            <span>status</span>
+            <select id="queryStatus">
+              <option value="">全部</option>
+              <option value="RUNNING">RUNNING</option>
+              <option value="SUCCESS">SUCCESS</option>
+              <option value="FAILED">FAILED</option>
+            </select>
+          </label>
+          <label>
+            <span>size</span>
+            <input id="pageSize" type="number" min="1" max="100" value="10" />
+          </label>
+          <button type="submit" class="primary">查询</button>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>taskId</th>
+                <th>shopId</th>
+                <th>platform</th>
+                <th>status</th>
+                <th>rowCount</th>
+                <th>startedAt</th>
+                <th>finishedAt</th>
+                <th>updatedAt</th>
+              </tr>
+            </thead>
+            <tbody id="task-table-body">
+              <tr><td colspan="8" class="empty">暂无数据</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p id="query-meta" class="meta"></p>
+        <pre id="query-result" class="result" hidden></pre>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" hidden></div>
+  </div>
+  <script src="/js/app.js"></script>
+</body>
+</html>

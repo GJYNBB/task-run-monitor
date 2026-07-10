@@ -124,6 +124,37 @@ PowerShell：
 
 服务默认地址：`http://localhost:8080`
 
+### 4. 打开演示前端
+
+#### 方式 A：Spring Boot 直接提供（开发）
+
+浏览器访问：
+
+```text
+http://localhost:8080/
+```
+
+#### 方式 B：Nginx 提供前端 + 反代 API（推荐演示）
+
+1. 确保 Spring Boot 已在 `8080` 运行  
+2. 使用配置：[`deploy/nginx/nginx.conf`](deploy/nginx/nginx.conf)  
+3. 启动 Nginx 后访问：
+
+```text
+http://localhost/
+```
+
+- 前端静态页：Nginx 提供  
+- `/api/*`：Nginx 反代到 `http://127.0.0.1:8080`  
+- 详细说明见：[`deploy/nginx/README.md`](deploy/nginx/README.md)
+
+页面可直接演示：
+
+- 任务上报（RUNNING / SUCCESS / FAILED）
+- 相同 taskId 更新
+- 分页与筛选
+- 店铺汇总统计
+
 ## 接口示例
 
 更完整的请求见根目录 [`requests.http`](requests.http)。
