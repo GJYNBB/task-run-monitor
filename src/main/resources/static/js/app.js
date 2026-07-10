@@ -78,8 +78,23 @@ function fillSuccessExample() {
   $("errorMessage").value = "";
 }
 
+function statusText(status) {
+  return {
+    RUNNING: "运行中",
+    SUCCESS: "成功",
+    FAILED: "失败",
+  }[status] || status;
+}
+
+function platformText(platform) {
+  return {
+    TAOBAO: "淘宝",
+    DOUYIN: "抖音",
+  }[platform] || platform;
+}
+
 function statusBadge(status) {
-  return `<span class="status ${status}">${status}</span>`;
+  return `<span class="status ${status}">${statusText(status)}</span>`;
 }
 
 function renderTable(records) {
@@ -92,7 +107,7 @@ function renderTable(records) {
     <tr>
       <td>${item.taskId ?? ""}</td>
       <td>${item.shopId ?? ""}</td>
-      <td>${item.platform ?? ""}</td>
+      <td>${platformText(item.platform ?? "")}</td>
       <td>${statusBadge(item.status ?? "")}</td>
       <td>${item.rowCount ?? 0}</td>
       <td>${item.startedAt ?? ""}</td>
@@ -130,7 +145,7 @@ async function loadTasks() {
 async function loadSummary() {
   const shopId = $("summaryShopId").value.trim();
   if (!shopId) {
-    throw new Error("shopId不能为空");
+    throw new Error("店铺编号不能为空");
   }
   const result = await request(`/api/task-runs/summary?shopId=${encodeURIComponent(shopId)}`);
   const data = result.data || {};
@@ -138,7 +153,7 @@ async function loadSummary() {
   $("successCount").textContent = data.successCount ?? 0;
   $("failedCount").textContent = data.failedCount ?? 0;
   $("successRowCount").textContent = data.successRowCount ?? 0;
-  $("latestSuccessFinishedAt").textContent = data.latestSuccessFinishedAt ?? "null";
+  $("latestSuccessFinishedAt").textContent = data.latestSuccessFinishedAt ?? "暂无";
   showJson($("summary-result"), result);
 }
 
@@ -166,7 +181,7 @@ async function submitReport(event) {
     body: JSON.stringify(payload),
   });
   showJson($("report-result"), result);
-  toast(`上报成功：${result.data?.taskId} -> ${result.data?.status}`);
+  toast(`上报成功：${result.data?.taskId}，状态为${statusText(result.data?.status)}`);
   $("summaryShopId").value = payload.shopId;
   $("queryShopId").value = payload.shopId;
   state.page = 1;

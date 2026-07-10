@@ -10,61 +10,64 @@
   <div class="page">
     <header class="hero">
       <div>
-        <p class="eyebrow">Task Run Monitor</p>
+        <p class="eyebrow">采集任务运行监控</p>
         <h1>采集任务监控台</h1>
-        <p class="subtitle">上报任务运行状态，查询分页列表，并查看店铺汇总。</p>
+        <p class="subtitle">上报任务运行状态，分页查询任务记录，并查看店铺汇总。</p>
       </div>
-      <div class="hero-badge">Spring Boot Demo</div>
+      <div class="hero-badge">前后端交互演示</div>
     </header>
 
     <main class="grid">
       <section class="card">
         <div class="card-head">
           <h2>任务上报</h2>
-          <p>相同 taskId 会更新原记录，不会重复新增。</p>
+          <p>相同任务编号会更新原记录，不会产生重复数据。</p>
         </div>
         <form id="report-form" class="form">
           <div class="form-grid">
             <label>
-              <span>taskId</span>
+              <span>任务编号</span>
               <input id="taskId" name="taskId" required placeholder="TASK-001" value="TASK-DEMO-001" />
             </label>
             <label>
-              <span>shopId</span>
+              <span>店铺编号</span>
               <input id="shopId" name="shopId" required placeholder="SHOP-001" value="SHOP-001" />
             </label>
             <label>
-              <span>platform</span>
-              <input id="platform" name="platform" required placeholder="TAOBAO" value="TAOBAO" />
-            </label>
-            <label>
-              <span>status</span>
-              <select id="status" name="status">
-                <option value="RUNNING">RUNNING</option>
-                <option value="SUCCESS" selected>SUCCESS</option>
-                <option value="FAILED">FAILED</option>
+              <span>数据平台</span>
+              <select id="platform" name="platform">
+                <option value="TAOBAO" selected>淘宝</option>
+                <option value="DOUYIN">抖音</option>
               </select>
             </label>
             <label>
-              <span>startedAt</span>
+              <span>任务状态</span>
+              <select id="status" name="status">
+                <option value="RUNNING">运行中</option>
+                <option value="SUCCESS" selected>成功</option>
+                <option value="FAILED">失败</option>
+              </select>
+            </label>
+            <label>
+              <span>开始时间</span>
               <input id="startedAt" name="startedAt" type="datetime-local" required />
             </label>
             <label>
-              <span>finishedAt</span>
+              <span>完成时间</span>
               <input id="finishedAt" name="finishedAt" type="datetime-local" />
             </label>
             <label>
-              <span>rowCount</span>
+              <span>采集行数</span>
               <input id="rowCount" name="rowCount" type="number" min="0" required value="1200" />
             </label>
             <label class="full">
-              <span>errorMessage</span>
+              <span>错误信息</span>
               <input id="errorMessage" name="errorMessage" placeholder="失败时填写错误信息" />
             </label>
           </div>
           <div class="actions">
-            <button type="button" class="ghost" id="fill-running">填充 RUNNING 示例</button>
-            <button type="button" class="ghost" id="fill-success">填充 SUCCESS 示例</button>
+            <button type="button" class="ghost" id="fill-running">填充运行中示例</button>
+            <button type="button" class="ghost" id="fill-success">填充成功示例</button>
             <button type="submit" class="primary">提交上报</button>
           </div>
         </form>
@@ -78,15 +81,15 @@
         </div>
         <form id="summary-form" class="inline-form">
           <label>
-            <span>shopId</span>
+            <span>店铺编号</span>
             <input id="summaryShopId" required value="SHOP-001" />
           </label>
           <button type="submit" class="primary">查询汇总</button>
         </form>
         <div id="summary-cards" class="summary-grid">
-          <div class="metric"><span>RUNNING</span><strong id="runningCount">-</strong></div>
-          <div class="metric"><span>SUCCESS</span><strong id="successCount">-</strong></div>
-          <div class="metric"><span>FAILED</span><strong id="failedCount">-</strong></div>
+          <div class="metric"><span>运行中任务</span><strong id="runningCount">-</strong></div>
+          <div class="metric"><span>成功任务</span><strong id="successCount">-</strong></div>
+          <div class="metric"><span>失败任务</span><strong id="failedCount">-</strong></div>
           <div class="metric"><span>成功行数</span><strong id="successRowCount">-</strong></div>
           <div class="metric wide"><span>最近成功完成时间</span><strong id="latestSuccessFinishedAt">-</strong></div>
         </div>
@@ -97,7 +100,7 @@
         <div class="card-head row">
           <div>
             <h2>任务列表</h2>
-            <p>支持 shopId、status 筛选，按 updatedAt 倒序分页。</p>
+            <p>支持按店铺编号和任务状态筛选，并按最后更新时间倒序分页。</p>
           </div>
           <div class="pager">
             <button type="button" class="ghost" id="prev-page">上一页</button>
@@ -107,20 +110,20 @@
         </div>
         <form id="query-form" class="inline-form wrap">
           <label>
-            <span>shopId</span>
+            <span>店铺编号</span>
             <input id="queryShopId" placeholder="可选" />
           </label>
           <label>
-            <span>status</span>
+            <span>任务状态</span>
             <select id="queryStatus">
-              <option value="">全部</option>
-              <option value="RUNNING">RUNNING</option>
-              <option value="SUCCESS">SUCCESS</option>
-              <option value="FAILED">FAILED</option>
+              <option value="">全部状态</option>
+              <option value="RUNNING">运行中</option>
+              <option value="SUCCESS">成功</option>
+              <option value="FAILED">失败</option>
             </select>
           </label>
           <label>
-            <span>size</span>
+            <span>每页条数</span>
             <input id="pageSize" type="number" min="1" max="100" value="10" />
           </label>
           <button type="submit" class="primary">查询</button>
@@ -129,14 +132,14 @@
           <table>
             <thead>
               <tr>
-                <th>taskId</th>
-                <th>shopId</th>
-                <th>platform</th>
-                <th>status</th>
-                <th>rowCount</th>
-                <th>startedAt</th>
-                <th>finishedAt</th>
-                <th>updatedAt</th>
+                <th>任务编号</th>
+                <th>店铺编号</th>
+                <th>数据平台</th>
+                <th>任务状态</th>
+                <th>采集行数</th>
+                <th>开始时间</th>
+                <th>完成时间</th>
+                <th>最后更新时间</th>
               </tr>
             </thead>
             <tbody id="task-table-body">
